@@ -1,144 +1,135 @@
 let arregloTareas = new Array();
 let elementosGuardados = 0;
-let done = new Audio('/done.mp3');
-let undone = new Audio('/undone.mp3');
+let done = new Audio('./src/done.mp3');
+let undone = new Audio('./src/undone.mp3');
 
-function init() {
-    if('serviveWorker' in navigator){
-        navigator.serviceWorker.register('sw.js').then(function(
-            registration){
-            console.log('Sw registrado correctamente');
+function init(){
+
+    if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('./sw.js')
+        .then(function(registration){
+            //si es exitoso
+            console.log('Service Worker registrado');
         }, function(err){
-            console.log('SW fallo', err)
+            //si hay error
+            console.log('Error al registrar Service Worker: ', err);
         });
-    } else {
-        console.log('ERROR');
+    }else{
+        console.log('Error')
     }
+
     let fecha = new Date();
-    console.log(fecha);
     let mesNumero = fecha.getMonth();
     let mes = "";
 
-    switch(mesNumero) {
+    switch(mesNumero){
         case 0:
-            mes="Enero";
+            mes = "Enero";
             break;
         case 1:
-            mes="Febrero";
+            mes = "Febrero";
             break;
         case 2:
-            mes="Marzo";
+            mes = "Marzo";
             break;
         case 3:
-            mes="Abril";
+            mes = "Abril";
             break;
         case 4:
-            mes="Mayo";
+            mes = "Mayo";
             break;
         case 5:
-            mes="Junio";
+            mes = "Junio";
             break;
         case 6:
-            mes="Julio";
+            mes = "Julio";
             break;
         case 7:
-            mes="Agosto";
+            mes = "Agosto";
             break;
         case 8:
-            mes="Septiembre";
+            mes = "Septiembre";
             break;
         case 9:
-            mes="Octubre";
+            mes = "Octubre";
             break;
         case 10:
-            mes="Noviembre";
+            mes = "Noviembre";
             break;
         case 11:
-            mes="Diciembre";
+            mes = "Diciembre";
             break;
     }
+elemento = document.getElementById("fecha").innerHTML= fecha.getDate() + " de " +mes;
 
-    elemento=document.getElementById('fecha').innerHTML=fecha.getDate() + 
-    " de " + mes;
-
-    if(localStorage.getItem('tareas')){
-        alert("Si hay tareas");
-        tareas = JSON.parse(localStorage.getItem('tareas'));
-        for(i=0; i<tareas.lenght; i++) {
-            arregloTareas.push(tareas[i]);
-        }
-        loadTareas();
-    } else {
-        alert("No hay tareas");
-
-        //Crea objeto vacío
-        jsonTarea = {};
-
-        //Creamos la variables tareas en el LS y guardamos un objeto vacio.
-        localStorage.setItem('tareas', JSON.stringify(jsonTarea));
+if(localStorage.getItem('tareas')){
+    console.log("si hay")
+    tareas = JSON.parse(localStorage.getItem('tareas'));
+    for(i=0; i<tareas.length; i++){
+        arregloTareas.push(tareas[i]);
     }
+    loadTareas();
+}else{
+    alert("no hay");
+    jsonTarea = {};
+    localStorage.setItem('tareas', JSON.stringify(jsonTarea));
+}
 
 }
 
-//Funcion para agregar pendientes
-function agregar() {
-    //Capturar elemento de entrada de texto
-    tareaTexto = document.getElementById('nuevaTarea');
 
-    //Objeto Js
-    jsonTarea = {
-        'valor': tareaTexto.value,
-        'status': 'pendiente'
+function agregar(){
+    tareaTexto = document.getElementById("insertarTarea");
+
+//Obj js
+jsonTarea = {
+    'valor': tareaTexto.value,
+    'status':'pendiente'
     };
+    //crear elemento nuevo en la interfaz
+    elemento = "<div class='tarea' id='" +elementosGuardados+"'>" +
+                "<input type='checkbox' id='tarea1'>" +
+    "<label for='tarea1'> "+jsonTarea.valor+"  </label>" +
+"</div>"
 
-    //Crear el elemento nuevo en la interfaz
-    elemento= " <div class='tarea'>" +
-            "<input type='checkbox' id='"+ elementosGuardados +"'>" +
-            "<label>" + jsonTarea.valor + "</label>" +
-            "</div>";
+document.querySelector(".porhacer").innerHTML += elemento;
 
-
-document.querySelector('.porhacer').innerHTML += elemento;
-
-arregloTareas.push(jsonTarea);
-
+arregloTareas.push(jsonTarea)
 localStorage.setItem('tareas', JSON.stringify(arregloTareas));
-
 tareaTexto.value="";
 
 elementosGuardados++;
 }
-function loadTareas() {
-    console.log("Hola");
-    for(i=0; i<tareas.length; i++) {
-        elemento= " <div class='tarea'>" +
-        "<input type='checkbox' id='"+ i +"'>" +
-        "<label>" + tareas[i].valor + "</label>" +
-        "</div>";
 
-        if(tareas[i].status == "pendiente") {
-            document.querySelector('.porhacer').innerHTML += elemento;
-        } else if (tareas[i].status == "terminado") {
-            document.querySelector('.terminado').innerHTML += elemento;
+function loadTareas(){
+    document.querySelector('.porhacer').innerHTML ="";
+    document.querySelector('.terminado').innerHTML="";
+    for(i=0; i<tareas.length; i++){
+        elemento = "<div class='tarea' id='" +i+"'onClick='cambiarEstado(this.id)'>" +
+                "<input type='checkbox' id='tarea1'>" +
+    "<label for='tarea1'> "+tareas[i].valor+"  </label>" 
+    
+    if(tareas[i].status =="pendiente"){
+        document.querySelector(".porhacer").innerHTML +=elemento;
+        }else if(tareas[i].status == "terminado"){
+            document.querySelector(".terminado").innerHTML +=elemento;
         }
-    }
 
+    }
     elementosGuardados = tareas.length;
+
 }
 
-function cambiarEstado() {
-        tareas=JSON.parse(localStorage.getItem('tareas'));
+function cambiarEstado(id){
+tareas = JSON.parse(localStorage.getItem('tareas'));
 
-        if(tareas[i].status == "terminado") {
-            tareas[i].status == "pendiente";
-            undone.play();
-        } else if (tareas[i].status == "pendiente") {
-            tareas[i].status == "terminado";
-            done.play();
-        }
-
-
-        localStorage.setItem('tareas', JSON.stringify(tareas));
+    if(tareas[id].status == 'terminado'){
+        tareas[id].status = 'pendiente';
+        undone.play();
+    }else{
+        tareas[id].status = 'terminado';
+        done.play();
     }
-
-
+    localStorage.setItem('tareas', JSON.stringify(tareas));
+    loadTareas();
+}
